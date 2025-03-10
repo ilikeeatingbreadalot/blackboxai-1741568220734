@@ -5,9 +5,11 @@ Paste the following in the Input data section
 Source1 45.5% 2.3 XCountry
 Source2 32.8% 1.9 YCountry
 Source3 21.7% 1.5 ZCountry
+Right Populations:
+
 p-value: 0.234
 chisq: 1.456
-Right Populations:
+
 
 Replace Source1 and so on with the name of the sample eg, Italy_BA.SG or any other name
 Replace the percentage with the percentage of that sample
