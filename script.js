@@ -349,7 +349,7 @@ function createMap(data) {
 
 const exampleData = `Source1 45.5% 2.3 Lebanon
 Source2 32.8% 1.9 France
-Source3 21.7% 1.5 Japan
+Source3 21.7% 1.5 Japan 
 Right Populations:
 
 p-value: 0.234
