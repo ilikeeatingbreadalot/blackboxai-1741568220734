@@ -1,0 +1,14 @@
+Instructions
+Paste the following in the data section 
+Source1 45.5% 2.3 XCountry
+Source2 32.8% 1.9 YCountry
+Source3 21.7% 1.5 ZCountry
+p-value: 0.234
+chisq: 1.456
+Replace Source1 and so on with the name of the sample eg, Italy_BA.SG or any other name
+Replace the percentage with the percentage of that sample
+replace the number after the percent to correspond with the Standard errors
+Replace P val number with the p val of your qpadm run
+replace chi sq number with the chis sq of your model
+Replace XCountry and so on with where you want it to appear on the map
+Add more lines following the format of the source1, 2 and three to add more populatuons
