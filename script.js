@@ -1,7 +1,6 @@
 let chart = null;
 let map = null;
 
-// Comprehensive list of country coordinates
 const COUNTRY_COORDINATES = {
     "Afghanistan": [33.93911, 67.709953],
     "Albania": [41.153332, 20.168331],
@@ -198,6 +197,8 @@ const COUNTRY_COORDINATES = {
     "Zimbabwe": [-19.015438, 29.154857]
 };
 
+// [Rest of the script remains the same]
+
 function processData() {
     const input = document.getElementById('dataInput').value;
     const lines = input.trim().split('\n');
@@ -252,13 +253,30 @@ function processData() {
 
     const visualizationType = document.getElementById('visualizationType').value;
 
+    // Clear previous visualizations
+    if (chart) {
+        chart.destroy();
+        chart = null;
+    }
+    if (map) {
+        map.remove();
+        map = null;
+    }
+
+    const mapContainer = document.getElementById('map');
+    const chartContainer = document.getElementById('chartContainer');
+
     if (visualizationType === 'pie') {
-        document.getElementById('map').style.display = 'none';
-        document.getElementById('chartContainer').style.display = 'block';
+        mapContainer.style.display = 'none';
+        chartContainer.style.display = 'block';
         createChart(data);
     } else {
-        document.getElementById('chartContainer').style.display = 'none';
-        document.getElementById('map').style.display = 'block';
+        chartContainer.style.display = 'none';
+        mapContainer.style.display = 'block';
+        mapContainer.style.height = '400px';
+        mapContainer.style.width = '100%';
+        // Force a reflow
+        mapContainer.offsetHeight;
         setTimeout(() => {
             createMap(data);
         }, 100);
@@ -266,10 +284,6 @@ function processData() {
 }
 
 function createChart(data) {
-    if (chart) {
-        chart.destroy();
-    }
-
     const colors = data.labels.map(() => 
         `hsl(${Math.random() * 360}, 70%, 60%)`
     );
@@ -310,28 +324,32 @@ function createChart(data) {
 }
 
 function createMap(data) {
-    if (map) {
-        map.remove();
-        map = null;
-    }
-
-    map = L.map('map').setView([20, 0], 2);
+    // Initialize new map
+    map = L.map('map', {
+        zoomControl: true,
+        scrollWheelZoom: true
+    }).setView([20, 0], 2);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    // Create circles for each location
     data.labels.forEach((label, index) => {
         const percentage = data.percentages[index];
         const location = data.locations[index];
         const coordinates = COUNTRY_COORDINATES[location];
         
         if (coordinates) {
+            // Calculate radius based on percentage (adjust multiplier as needed)
+            const radius = (percentage * 50000) / 4; // Reduced size to a quarter
+            
             const circle = L.circle(coordinates, {
                 color: `hsl(${Math.random() * 360}, 70%, 60%)`,
                 fillColor: `hsl(${Math.random() * 360}, 70%, 60%)`,
                 fillOpacity: 0.5,
-                radius: percentage * 10000
+                radius: radius,
+                weight: 2
             }).addTo(map);
 
             circle.bindPopup(`
@@ -339,24 +357,42 @@ function createMap(data) {
                 Percentage: ${percentage.toFixed(2)}%<br>
                 Location: ${location}
             `);
+        } else {
+            console.error(`Coordinates not found for location: ${location}`);
         }
     });
 
+    // Force a map refresh after a short delay
     setTimeout(() => {
         map.invalidateSize();
+        
+        // If we have locations, fit the map to show all circles
+        const validLocations = data.locations
+            .filter(loc => COUNTRY_COORDINATES[loc])
+            .map(loc => COUNTRY_COORDINATES[loc]);
+            
+        if (validLocations.length > 0) {
+            map.fitBounds(L.latLngBounds(validLocations).pad(0.5));
+        }
     }, 200);
 }
 
-const exampleData = `Source1 45.5% 2.3 Lebanon
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    // Add change handler for visualization type
+    document.getElementById('visualizationType').addEventListener('change', () => {
+        processData();
+    });
+    
+    // Set initial example data
+    document.getElementById('dataInput').value = `Source1 45.5% 2.3 Lebanon
 Source2 32.8% 1.9 France
-Source3 21.7% 1.5 Japan 
+Source3 21.7% 1.5 Japan
 Right Populations:
 
 p-value: 0.234
 chisq: 1.456`;
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('dataInput').value = exampleData;
-    document.getElementById('visualizationType').addEventListener('change', processData);
+    // Initial processing
     processData();
 });
